@@ -1,0 +1,32 @@
+
+.application {
+  padding-top: 16px;
+}
+
+.infoRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.infoRowLabel {
+  width: 200px;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.serviceInstances > div:not(:last-child) {
+  padding-bottom: 8px;
+}
+
+.serviceInstances span {
+  text-transform: none !important;
+}

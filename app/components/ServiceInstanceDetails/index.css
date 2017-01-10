@@ -1,0 +1,18 @@
+.infoRow {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 4px;
+}
+
+.infoRowLabel {
+  width: 150px;
+}
+
+.portType {
+  width: 150px;
+}
+
+hr {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
