@@ -4,14 +4,14 @@
     "stage-0",
     "react"
   ],
-  "plugins": ["add-module-exports", "transform-flow-strip-types"],
+  "plugins": ["add-module-exports"],
   "env": {
     "production": {
       "presets": ["react-optimize"],
       "plugins": ["babel-plugin-dev-expression"]
     },
     "development": {
-			"plugins": ["tcomb"],
+			"plugins": ["syntax-flow", "tcomb", "transform-flow-strip-types"],
       "presets": ["react-hmre"]
     },
     "test": {

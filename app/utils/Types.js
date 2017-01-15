@@ -7,7 +7,7 @@ export type ImageInfo = {
   name: string,
   namespace: string,
   namespaced: boolean,
-  registry: string,
+  registry?: string,
   repository: string,
   tag: string
 };
@@ -99,4 +99,14 @@ export type ServiceInstance = {
   status: string,
   tierName: string,
   url: string
+};
+
+export type DockerManagerServerConfiguration = {
+  icon: string,
+  id: string,
+  name: string,
+  password: string,
+  selected: boolean,
+  url: string,
+  username: string
 };

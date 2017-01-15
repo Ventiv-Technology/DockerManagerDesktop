@@ -4,12 +4,16 @@
   margin-bottom: 4px;
 }
 
-.infoRowLabel {
+.infoRowLabel, .portType, .historyTimestamp, .historyDetails {
   width: 150px;
 }
 
-.portType {
-  width: 150px;
+.historyPermission {
+  width: 125px;
+}
+
+.historyLogin {
+  width: 100px;
 }
 
 hr {

@@ -2,20 +2,13 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
-import selectn from 'selectn';
 import { shell } from 'electron';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
-import FlatButton from 'material-ui/FlatButton';
-import { Card, CardHeader, CardText } from 'material-ui/Card';
 import dateFormat from 'dateformat';
-import Dialog from 'material-ui/Dialog';
 import MdArrowForward from 'react-icons/lib/md/arrow-forward';
+import selectn from 'selectn';
 
 import styles from './index.css';
-import { openDialog, closeDialog } from '../../actions/dialog';
+import { closeDialog } from '../../actions/dialog';
 
 const ServiceInstanceDetails = (props) => {
   if (!props.serviceInstance) return null;
@@ -57,6 +50,25 @@ const ServiceInstanceDetails = (props) => {
           <div className={styles.infoRowLabel} />
           <div className={styles.portType}>{portDef.portType}</div>
           <div className={styles.portMapping}>{portDef.hostPort} <MdArrowForward /> {portDef.containerPort}</div>
+        </div>
+      ))}
+
+      <hr />
+
+      <div className={styles.infoRow}>
+        <div className={styles.infoRowLabel}>History Last {props.serviceInstance.history.page.size}:</div>
+        <div className={styles.historyLogin}>Login</div>
+        <div className={styles.historyPermission}>Permission</div>
+        <div className={styles.historyTimestamp}>Timestamp</div>
+        <div className={styles.historyDetails}>Details</div>
+      </div>
+      {selectn('serviceInstance.history._embedded.userAudits', props) && props.serviceInstance.history['_embedded'].userAudits.map((history, i) => (
+        <div key={i} className={styles.infoRow}>
+          <div className={styles.infoRowLabel} />
+          <div className={styles.historyLogin}>{history.principal}</div>
+          <div className={styles.historyPermission}>{history.permission}</div>
+          <div className={styles.historyTimestamp}>{dateFormat(history.permissionEvaluated, 'm/d/yy h:MM TT')}</div>
+          <div className={styles.historyDetails}>{JSON.stringify(history.auditDetails)}</div>
         </div>
       ))}
     </div>
