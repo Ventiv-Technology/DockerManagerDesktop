@@ -1,10 +1,13 @@
 import { app, BrowserWindow, Menu, shell, ipcMain } from 'electron';
 import ElectronSettings from 'electron-settings';
+import SockJS from 'sockjs-client';
 import log from 'electron-log';
+import DockerManagerEvents from './utils/DockerManagerEvents';
 import Api from './api';
 import { serverSettingsChanged } from './actions/settings';
 import { updateEnvironment } from './actions/environment';
 import { updateServiceInstance } from './actions/serviceInstances';
+
 
 let menu;
 let template;
@@ -69,6 +72,22 @@ app.on('ready', async () => {
     const allApis = (servers && servers.map(server => new Api(server))) || [];
     allApis.forEach(serverApi => {
       serverApi.on('authorize', (api) => {
+        const dispatchUpdateServiceInstance = (serviceInstance) => {
+          mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServiceInstance(api.serverInfo.id, { ...serviceInstance, dmServerInfo: api.serverInfo }));
+        };
+
+        try {
+          const dmEvents = new DockerManagerEvents(api.serverInfo);
+          dmEvents.on('ContainerStartedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
+          dmEvents.on('ContainerStoppedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
+
+          app.on('before-quit', () => {
+            dmEvents.shutdown();
+          });
+        } catch (e) {
+          log.error('Trouble Initiating WebSocket', e);
+        }
+
         api.getEnvironments()
           .then(data => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateEnvironment(api.serverInfo.id, data)))
           .catch(err => log.error('Error Getting environment:', err));
@@ -79,7 +98,7 @@ app.on('ready', async () => {
               log.error('Fetched Wrong data: ', data);
             } else {
               data.hostDetails.forEach(host => {
-                host.serviceInstances.forEach(serviceInstance => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServiceInstance(api.serverInfo.id, { ...serviceInstance, dmServerInfo: api.serverInfo })));
+                host.serviceInstances.forEach(dispatchUpdateServiceInstance);
               });
             }
 

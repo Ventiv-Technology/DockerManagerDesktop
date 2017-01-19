@@ -12,8 +12,9 @@ import FlatButton from 'material-ui/FlatButton';
 import { Card, CardHeader, CardText } from 'material-ui/Card';
 import dateFormat from 'dateformat';
 import Dialog from 'material-ui/Dialog';
-import ServiceInstanceDetails from '../ServiceInstanceDetails';
+import Stomp from 'stompjs';
 
+import ServiceInstanceDetails from '../ServiceInstanceDetails';
 import styles from './index.css';
 import { openServiceInstanceDetailsDialog, closeDialog } from '../../actions/dialog';
 import type { ApplicationConfiguration, ServiceInstance } from '../../utils/Types';
@@ -73,7 +74,19 @@ const ApplicationDetails = (props) => {
             <RaisedButton label="Stop" style={{ margin: 12 }} />
             <RaisedButton label="Start" style={{ margin: 12 }} />
             <RaisedButton label="Restart" style={{ margin: 12 }} />
-            <RaisedButton label="History" style={{ margin: 12 }} />
+            <RaisedButton label="History" style={{ margin: 12 }} onClick={() => {
+              console.log("About to connect to socket");
+
+              var WebSocketClient = require('websocket').client;
+              console.log(WebSocketClient);
+              const ws = new WebSocketClient('ws://localhost:8080/api/status/827/asdfasdf/websocket', undefined, undefined, { Authorization: 'Basic YWRtaW46YWRtaW4=' });
+              //ws.connect('ws://localhost:8080/api/status/827/asdfasdf/websocket', '', { Authentication: 'Basic YWRtaW46YWRtaW4=' });
+
+              const client = Stomp.over(ws);
+              client.connect(() => {
+                const subscription = client.subscribe('/topic/event/ContainerStartedEvent', (e) => console.log('This happened', e));
+              });
+            }} />
           </div>
 
           <div className={styles.serviceInstances}>
