@@ -10,9 +10,12 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import ElectronSettings from 'electron-settings';
 import electron from 'electron';
+import log from 'electron-log';
 import routes from './routes';
 import configureStore from './store/configureStore';
 import './app.global.css';
+
+log.appName = 'DockerManager';
 
 injectTapEventPlugin();
 

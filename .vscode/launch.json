@@ -5,11 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceRoot}/main.js",
-      "cwd": "${workspaceRoot}"
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "program": "${workspaceRoot}/app/main.development.js"
     },
     {
       "type": "node",

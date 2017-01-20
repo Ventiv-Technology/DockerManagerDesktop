@@ -1,6 +1,5 @@
 import { app, BrowserWindow, Menu, shell, ipcMain } from 'electron';
 import ElectronSettings from 'electron-settings';
-import SockJS from 'sockjs-client';
 import log from 'electron-log';
 import DockerManagerEvents from './utils/DockerManagerEvents';
 import Api from './api';
@@ -8,6 +7,7 @@ import { serverSettingsChanged, updateServerSettings } from './actions/settings'
 import { updateEnvironment } from './actions/environment';
 import { updateServiceInstance } from './actions/serviceInstances';
 
+log.appName = 'DockerManager';
 
 let menu;
 let template;
