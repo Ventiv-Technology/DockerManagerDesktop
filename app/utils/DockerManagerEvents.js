@@ -60,6 +60,7 @@ export default class DockerManagerEvents extends EventEmitter {
       log.debug('WebSocket Connection Closed to: ', this.serverInfo.name);
       wsConnection.onclose();
       this.shutdown();
+      this.emit('close');
       this.connect();
     });
 
@@ -67,6 +68,7 @@ export default class DockerManagerEvents extends EventEmitter {
       this.eventNames().forEach(eventName => {
         this.stompClient.subscribe(`/topic/event/${eventName}`, (frame) => this.emit(eventName, JSON.parse(frame.body)));
       });
+      this.emit('connect');
     });
 
     wsConnection.onopen();

@@ -28,7 +28,7 @@ const Navigation = (props, context) => (
             <ListItem
               key={server.id}
               primaryText={server.name}
-              leftIcon={(<Icon style={{ color: cluster ? 'green' : 'red' }} />)}
+              leftIcon={(<Icon style={{ color: server.connected ? 'green' : 'red' }} />)}
               nestedItems={renderTierList(server, cluster, props)}
               onTouchTap={() => props.router.push(`/clusters/${cluster.id}`)}
             />

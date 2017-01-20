@@ -4,7 +4,7 @@ import SockJS from 'sockjs-client';
 import log from 'electron-log';
 import DockerManagerEvents from './utils/DockerManagerEvents';
 import Api from './api';
-import { serverSettingsChanged } from './actions/settings';
+import { serverSettingsChanged, updateServerSettings } from './actions/settings';
 import { updateEnvironment } from './actions/environment';
 import { updateServiceInstance } from './actions/serviceInstances';
 
@@ -81,30 +81,29 @@ app.on('ready', async () => {
           dmEvents.on('ContainerStartedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
           dmEvents.on('ContainerStoppedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
 
+          // Use the DockerManagerEvents module to dictate when we're connected to the host.
+          dmEvents.on('connect', () => {
+            // Let the main window know we've connected
+            mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServerSettings(api.serverInfo, 'connected', true));
+
+            // Fetch the environment details, and send them to the main window.
+            api.getEnvironments()
+              .then(data => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateEnvironment(api.serverInfo.id, data)))
+              .catch(err => log.error('Error Getting environment:', err));
+
+            // Fetch each container, and send that to the main window.
+            api.getHosts()
+              .then(data => data.hostDetails.map(host => host.serviceInstances.map(dispatchUpdateServiceInstance)))
+              .catch(err => log.error('Error Getting hosts:', err));
+          });
+          dmEvents.on('close', () => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServerSettings(api.serverInfo, 'connected', false)));
+
           app.on('before-quit', () => {
             dmEvents.shutdown();
           });
         } catch (e) {
           log.error('Trouble Initiating WebSocket', e);
         }
-
-        api.getEnvironments()
-          .then(data => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateEnvironment(api.serverInfo.id, data)))
-          .catch(err => log.error('Error Getting environment:', err));
-
-        api.getHosts()
-          .then(data => {
-            if (!data || !data.hostDetails) {
-              log.error('Fetched Wrong data: ', data);
-            } else {
-              data.hostDetails.forEach(host => {
-                host.serviceInstances.forEach(dispatchUpdateServiceInstance);
-              });
-            }
-
-            return true;
-          })
-          .catch(err => log.error('Error Getting hosts:', err));
       });
     });
 

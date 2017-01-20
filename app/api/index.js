@@ -111,7 +111,14 @@ export default class Api extends EventEmitter {
   }
 
   getHosts() {
-    return this.makeRequest('api/hosts');
+    return this.makeRequest('api/hosts')
+      .then(data => {
+        if (!data || !data.hostDetails) {
+          return Promise.reject({ err: 'Fetched Wrong data', data });
+        }
+
+        return data;
+      });
   }
 
   getServiceInstanceHistory(si) {
