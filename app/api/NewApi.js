@@ -4,7 +4,7 @@ import btoa from 'btoa';
 import log from 'electron-log';
 
 import { decrypt } from '../utils/encrypt';
-import type { DockerManagerServerConfiguration, ServiceInstance } from '../utils/Types';
+import type { DockerManagerServerConfiguration, ServiceInstance, ApplicationConfiguration } from '../utils/Types';
 
 const makeRequest = (serverInfo, url, init, useCredentials = true) => {
   const headers = new Headers({ Accept: 'application/json' });
@@ -56,6 +56,14 @@ const NewApi = {
   getServiceInstanceHistory(serverInfo: DockerManagerServerConfiguration, si: ServiceInstance) {
     return makeRequest(serverInfo, `userAudits/search/findUserAuditsForServiceInstance?serverName=${si.serverName}&tierName=${si.tierName}&environmentName=${si.environmentName}&applicationId=${si.applicationId}&name=${si.name}&instanceNumber=${si.instanceNumber}&sort=permissionEvaluated,desc`);
   },
+
+  getApplicationVersionsAsSelect(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration, q?: string) {
+    const branch = (application.branches && application.branches.length > 0) ? `/${application.branches[0]}` : '';
+    const query = q ? `?q=${q}` : '';
+
+    return makeRequest(serverInfo, `api/environment/${application.tierName}/${application.environmentId}/app/${application.id}/versions${branch}${query}`)
+      .then(json => ({ options: json.map(option => ({ value: option.id, label: option.text })) }));
+  }
 };
 
 export default NewApi;

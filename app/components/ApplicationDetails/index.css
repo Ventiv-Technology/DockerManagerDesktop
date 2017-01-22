@@ -23,6 +23,10 @@
   padding-bottom: 8px;
 }
 
+.select {
+  margin-top: 12px;
+}
+
 .serviceInstances > div:not(:last-child) {
   padding-bottom: 8px;
 }

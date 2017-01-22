@@ -9,6 +9,7 @@ import { Link } from 'react-router';
 import selectn from 'selectn';
 
 import styles from './index.css';
+import { updateSelectedVersion } from '../../actions/environment';
 import ApplicationDetails from '../../components/ApplicationDetails';
 import type { EnvironmentConfiguration } from '../../utils/Types';
 
@@ -23,6 +24,7 @@ const EnvironmentDetails = (props) => {
   if (!props.environment) return null;
   const FavoriteIcon = props.environment.favorite ? Star : StarBorder;
   const FavoriteIconColor = props.environment.favorite ? '#FECB2F' : 'black';
+  const selectVersionForApp = updateSelectedVersion.bind(this, props.params.clusterId, props.environment);
 
   return (
     <div className={styles.container}>
@@ -35,7 +37,7 @@ const EnvironmentDetails = (props) => {
         <div><Link to="/">{props.environment.description}</Link></div>
       </span>
       <div className={styles.applications}>
-        {props.environment.applications.map(app => (<ApplicationDetails key={app.id} app={app} />))}
+        {props.environment.applications.map(app => (<ApplicationDetails key={app.id} app={app} server={props.server} selectVersionForApp={selectVersionForApp} />))}
       </div>
     </div>
   );

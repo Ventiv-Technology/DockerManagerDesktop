@@ -28,7 +28,7 @@ export type ServiceInstanceAppConfiguration = {
   environment: any,
   memoryLimit?: string,
   memorySwapLimit?: string,
-  ports: Array<any>,                        // TODO: Define this
+  ports?: Array<any>,                        // TODO: Define this
   server?: string,
   type: string,
   volumeMappings?: Array<any>               // TODO: Define this
@@ -38,15 +38,16 @@ export type ApplicationConfiguration = {
   branches?: Array<string>,
   description: string,
   environmentId: string,
-  extraInformationPartial: string,
+  extraInformationPartial?: string,
   id: string,
   loadBalance?: string,
   serviceInstanceUrl?: string,
   serviceInstances: Array<ServiceInstanceAppConfiguration>,
   serviceSelectionAlgorithm?: string,
   tierName: string,
-  url: string,
-  versionSelection: any
+  url?: string,
+  versionSelection: any,
+  selectedVersion?: string
 };
 
 export type ServerServiceConfiguration = {

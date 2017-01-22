@@ -107,19 +107,6 @@ app.on('ready', async () => {
       });
     });
 
-    ipcMain.on('api-request', (event, serverId, methodName, ...args) => {
-      const api = allApis.find(searchApi => searchApi.serverInfo.id === serverId);
-      if (api) {
-        console.log('Calling API', serverId, methodName, args, api);
-        const apiCallPromise = api[methodName].call(api, args);
-        event.returnValue = apiCallPromise;   // eslint-disable-line
-        apiCallPromise.then(data => {         // eslint-disable-line
-          event.sender.send('api-response', serverId, methodName, args, data);
-          return data;
-        });
-      }
-    });
-
     mainWindow.show();
     mainWindow.focus();
     // mainWindow.toggleDevTools();

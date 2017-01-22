@@ -5,17 +5,16 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import selectn from 'selectn';
 import { shell } from 'electron';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import { Card, CardHeader, CardText } from 'material-ui/Card';
 import dateFormat from 'dateformat';
 import Dialog from 'material-ui/Dialog';
-import Stomp from 'stompjs';
+import Select from 'react-select';
 
 import ServiceInstanceDetails from '../ServiceInstanceDetails';
 import styles from './index.css';
+import Api from '../../api/NewApi';
 import { openServiceInstanceDetailsDialog, closeDialog } from '../../actions/dialog';
 import type { ApplicationConfiguration, ServiceInstance } from '../../utils/Types';
 
@@ -62,31 +61,21 @@ const ApplicationDetails = (props) => {
           </div>
 
           <div className={styles.toolbar}>
-            <DropDownMenu value={1}>
-              <MenuItem value={1} primaryText="Select Version..." />
-              <MenuItem value={2} primaryText="Every Night" />
-              <MenuItem value={3} primaryText="Weeknights" />
-              <MenuItem value={4} primaryText="Weekends" />
-              <MenuItem value={5} primaryText="Weekly" />
-            </DropDownMenu>
+            <Select.Async
+              name="form-field-name"
+              value={props.app.selectedVersion}
+              className={styles.select}
+              cache={false}
+              autosize={false}
+              onChange={option => props.dispatch(props.selectVersionForApp(props.app, option.value))}
+              loadOptions={(input) => Api.getApplicationVersionsAsSelect(props.server, props.app, input)}
+            />
 
             <RaisedButton label="Deploy" primary style={{ margin: 12 }} />
             <RaisedButton label="Stop" style={{ margin: 12 }} />
             <RaisedButton label="Start" style={{ margin: 12 }} />
             <RaisedButton label="Restart" style={{ margin: 12 }} />
-            <RaisedButton label="History" style={{ margin: 12 }} onClick={() => {
-              console.log("About to connect to socket");
-
-              var WebSocketClient = require('websocket').client;
-              console.log(WebSocketClient);
-              const ws = new WebSocketClient('ws://localhost:8080/api/status/827/asdfasdf/websocket', undefined, undefined, { Authorization: 'Basic YWRtaW46YWRtaW4=' });
-              //ws.connect('ws://localhost:8080/api/status/827/asdfasdf/websocket', '', { Authentication: 'Basic YWRtaW46YWRtaW4=' });
-
-              const client = Stomp.over(ws);
-              client.connect(() => {
-                const subscription = client.subscribe('/topic/event/ContainerStartedEvent', (e) => console.log('This happened', e));
-              });
-            }} />
+            <RaisedButton label="History" style={{ margin: 12 }} />
           </div>
 
           <div className={styles.serviceInstances}>
