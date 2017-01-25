@@ -4,7 +4,7 @@ import log from 'electron-log';
 import DockerManagerEvents from './utils/DockerManagerEvents';
 import Api from './api';
 import { serverSettingsChanged, updateServerSettings } from './actions/settings';
-import { updateEnvironment } from './actions/environment';
+import { updateEnvironment, updateApplication } from './actions/environment';
 import { updateServiceInstance } from './actions/serviceInstances';
 
 log.appName = 'DockerManager';
@@ -57,38 +57,42 @@ app.on('ready', async () => {
     height: 800
   });
 
+  const dispatch = (action) => mainWindow.webContents.send('DISPATCH_REDUX_MESSAGE', action);
+
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
   mainWindow.webContents.on('did-finish-load', () => {
     // Listen to the Settings, and push them to the mainWindow
     ElectronSettings.observe('servers', ({ newValue, oldValue }) => {
-      mainWindow.webContents.send('DISPATCH_REDUX_MESSAGE', serverSettingsChanged(newValue, oldValue));
+      dispatch(serverSettingsChanged(newValue, oldValue));
     });
 
     // Connect to our servers, and get the environment informaiton.
     const servers = ElectronSettings.getSync('servers');
-    if (servers) mainWindow.webContents.send('DISPATCH_REDUX_MESSAGE', serverSettingsChanged(servers));
+    if (servers) dispatch(serverSettingsChanged(servers));
 
     const allApis = (servers && servers.map(server => new Api(server))) || [];
     allApis.forEach(serverApi => {
       serverApi.on('authorize', (api) => {
         const dispatchUpdateServiceInstance = (serviceInstance) => {
-          mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServiceInstance(api.serverInfo.id, { ...serviceInstance, dmServerInfo: api.serverInfo }));
+          dispatch(updateServiceInstance(api.serverInfo.id, { ...serviceInstance, dmServerInfo: api.serverInfo }));
         };
 
         try {
           const dmEvents = new DockerManagerEvents(api.serverInfo);
           dmEvents.on('ContainerStartedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
           dmEvents.on('ContainerStoppedEvent', event => dispatchUpdateServiceInstance(event.event.serviceInstance));
+          dmEvents.on('DeploymentStartedEvent', event => dispatch(updateApplication(api.serverInfo.id, event.event.tierName, event.event.environmentName, event.event.applicationId, 'deployMessage', `- Deploying ${event.event.requestedVersion}...`)));
+          dmEvents.on('DeploymentFinishedEvent', event => dispatch(updateApplication(api.serverInfo.id, event.event.tierName, event.event.environmentName, event.event.applicationId, 'deployMessage', null)));
 
           // Use the DockerManagerEvents module to dictate when we're connected to the host.
           dmEvents.on('connect', () => {
             // Let the main window know we've connected
-            mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServerSettings(api.serverInfo, 'connected', true));
+            dispatch(updateServerSettings(api.serverInfo, 'connected', true));
 
             // Fetch the environment details, and send them to the main window.
             api.getEnvironments()
-              .then(data => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateEnvironment(api.serverInfo.id, data)))
+              .then(data => dispatch(updateEnvironment(api.serverInfo.id, data)))
               .catch(err => log.error('Error Getting environment:', err));
 
             // Fetch each container, and send that to the main window.
@@ -96,7 +100,7 @@ app.on('ready', async () => {
               .then(data => data.hostDetails.map(host => host.serviceInstances.map(dispatchUpdateServiceInstance)))
               .catch(err => log.error('Error Getting hosts:', err));
           });
-          dmEvents.on('close', () => mainWindow.send('DISPATCH_REDUX_MESSAGE', updateServerSettings(api.serverInfo, 'connected', false)));
+          dmEvents.on('close', () => dispatch(updateServerSettings(api.serverInfo, 'connected', false)));
 
           app.on('before-quit', () => {
             dmEvents.shutdown();

@@ -47,7 +47,7 @@ const ApplicationDetails = (props) => {
     <div className={styles.application}>
       <Card>
         <CardHeader
-          title={props.app.description}
+          title={(<div>{props.app.description} <span className={styles.deployMessage}>{props.app.deployMessage}</span></div>)}
           subtitle={<a className={styles.headerLink} onClick={() => shell.openExternal(url)}>{url}</a>}   // eslint-disable-line
           actAsExpander
           showExpandableButton

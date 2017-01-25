@@ -34,3 +34,7 @@
 .serviceInstances span {
   text-transform: none !important;
 }
+
+.deployMessage {
+  color: blue;
+}

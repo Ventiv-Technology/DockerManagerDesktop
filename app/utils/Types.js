@@ -47,7 +47,8 @@ export type ApplicationConfiguration = {
   tierName: string,
   url?: string,
   versionSelection: any,
-  selectedVersion?: string
+  selectedVersion?: string,
+  deployMessage?: string
 };
 
 export type ServerServiceConfiguration = {
