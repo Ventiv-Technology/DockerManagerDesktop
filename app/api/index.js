@@ -42,6 +42,13 @@ export default class Api extends EventEmitter {
       }),
     };
 
+    // Try every 10s to connect, till we're connected
+    setInterval(() => {
+      if (this.api.state.is('NOT_CONNECTED')) {
+        this.connect();
+      }
+    }, 10000);
+
     this.connect();
   }
 
