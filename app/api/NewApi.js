@@ -7,7 +7,7 @@ import { decrypt } from '../utils/encrypt';
 import type { DockerManagerServerConfiguration, ServiceInstance, ApplicationConfiguration } from '../utils/Types';
 
 const makeRequest = (serverInfo, url, init, useCredentials = true) => {
-  const headers = new Headers({ Accept: 'application/json' });
+  const headers = new Headers({ Accept: 'application/json', 'Content-Type': 'application/json' });
   if (useCredentials) {
     const username = serverInfo.username;
     const password = decrypt(serverInfo.password);
@@ -63,6 +63,10 @@ const NewApi = {
 
     return makeRequest(serverInfo, `api/environment/${application.tierName}/${application.environmentId}/app/${application.id}/versions${branch}${query}`)
       .then(json => ({ options: json.map(option => ({ value: option.id, label: option.text })) }));
+  },
+
+  deployApplication(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration, version: string) {
+    return makeRequest(serverInfo, `api/environment/${application.tierName}/${application.environmentId}/app/${application.id}/${version}`, { method: 'POST', body: '{}' });
   }
 };
 

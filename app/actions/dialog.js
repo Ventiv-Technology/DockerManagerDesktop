@@ -27,3 +27,7 @@ export function openServiceInstanceDetailsDialog(serviceInstance) {
       .then(updateAction => dispatch(openDialog('serviceInstanceDetailsDialog', updateAction.serviceInstance)))
   );
 }
+
+export function openAlert(title, message) {
+  return openDialog('alert', { title, message });
+}

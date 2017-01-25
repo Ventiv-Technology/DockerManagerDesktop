@@ -3,19 +3,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import selectn from 'selectn';
 import { shell } from 'electron';
 import RaisedButton from 'material-ui/RaisedButton';
-import FlatButton from 'material-ui/FlatButton';
 import { Card, CardHeader, CardText } from 'material-ui/Card';
 import dateFormat from 'dateformat';
-import Dialog from 'material-ui/Dialog';
 import Select from 'react-select';
 
-import ServiceInstanceDetails from '../ServiceInstanceDetails';
 import styles from './index.css';
 import Api from '../../api/NewApi';
-import { openServiceInstanceDetailsDialog, closeDialog } from '../../actions/dialog';
+import { openServiceInstanceDetailsDialog, openAlert } from '../../actions/dialog';
 import type { ApplicationConfiguration, ServiceInstance } from '../../utils/Types';
 
 type PropTypes = {
@@ -42,6 +38,14 @@ const ApplicationDetails = (props) => {
     const missingSi = missingServiceInstances.findIndex(missing => missing.name === si.name);
     missingServiceInstances.splice(missingSi, 1);
   });
+
+  const deployApp = () => {
+    if (props.app.selectedVersion) {
+      Api.deployApplication(props.server, props.app, props.app.selectedVersion);
+    } else {
+      props.openAlert('Please Select Version', 'Please select a version from the version selection dropdown before proceeding.');
+    }
+  };
 
   return (
     <div className={styles.application}>
@@ -71,7 +75,7 @@ const ApplicationDetails = (props) => {
               loadOptions={(input) => Api.getApplicationVersionsAsSelect(props.server, props.app, input)}
             />
 
-            <RaisedButton label="Deploy" primary style={{ margin: 12 }} />
+            <RaisedButton label="Deploy" primary style={{ margin: 12 }} onClick={deployApp} />
             <RaisedButton label="Stop" style={{ margin: 12 }} />
             <RaisedButton label="Start" style={{ margin: 12 }} />
             <RaisedButton label="Restart" style={{ margin: 12 }} />
@@ -103,20 +107,6 @@ const ApplicationDetails = (props) => {
           </div>
         </CardText>
       </Card>
-      <Dialog
-        title={`Service Instance: ${selectn('serviceInstanceDetailsDialog.serviceDescription', props)}`}
-        actions={[
-          (<FlatButton label="Remove" secondary onTouchTap={props.closeServiceInstanceDetails} />),
-          (<FlatButton label="Stop" onTouchTap={props.closeServiceInstanceDetails} />),
-          (<FlatButton label="Restart" onTouchTap={props.closeServiceInstanceDetails} />),
-          (<FlatButton label="Logs" onTouchTap={props.closeServiceInstanceDetails} />),
-          (<FlatButton label="Cancel" primary onTouchTap={props.closeServiceInstanceDetails} />),
-        ]}
-        open={!!props.serviceInstanceDetailsDialog}
-        onRequestClose={props.closeServiceInstanceDetails}
-      >
-        <ServiceInstanceDetails />
-      </Dialog>
     </div>
   );
 };
@@ -125,14 +115,13 @@ const mapStateToProps = (state, ownProps) => ({
   serviceInstances: _.sortBy(Object.keys(state.serviceInstances)
     .filter(siName => siName.startsWith(`${ownProps.app.tierName}/${ownProps.app.environmentId}/${ownProps.app.id}/`))
     .map(siName => (state.serviceInstances[siName])), ['serviceDescription', 'serverName']),
-  serviceInstanceDetailsDialog: state.dialog.serviceInstanceDetailsDialog
 });
 
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     openServiceInstanceDetails: (serviceInstance) => dispatch(openServiceInstanceDetailsDialog(serviceInstance)),
-    closeServiceInstanceDetails: () => dispatch(closeDialog('serviceInstanceDetailsDialog')),
+    openAlert: (title, message) => dispatch(openAlert(title, message))
   };
 }
 
