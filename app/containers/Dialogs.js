@@ -5,6 +5,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import selectn from 'selectn';
 
+import Api from '../api/NewApi';
 import ServiceInstanceDetails from '../components/ServiceInstanceDetails';
 import { closeDialog } from '../actions/dialog';
 
@@ -14,8 +15,8 @@ const Dialogs = (props) => (
       title={`Service Instance: ${selectn('serviceInstanceDetailsDialog.serviceDescription', props)}`}
       actions={[
         (<FlatButton label="Remove" secondary onTouchTap={props.closeServiceInstanceDetails} />),
-        (<FlatButton label="Stop" onTouchTap={props.closeServiceInstanceDetails} />),
-        (<FlatButton label="Restart" onTouchTap={props.closeServiceInstanceDetails} />),
+        selectn('serviceInstanceDetailsDialog.status', props) === 'Running' ? (<FlatButton label="Stop" onTouchTap={() => Api.stopContainer(props.serviceInstanceDetailsDialog.dmServerInfo, props.serviceInstanceDetailsDialog)} />) : null,
+        selectn('serviceInstanceDetailsDialog.status', props) === 'Stopped' ? (<FlatButton label="Start" onTouchTap={() => Api.startContainer(props.serviceInstanceDetailsDialog.dmServerInfo, props.serviceInstanceDetailsDialog)} />) : null,
         (<FlatButton label="Logs" onTouchTap={props.closeServiceInstanceDetails} />),
         (<FlatButton label="Cancel" primary onTouchTap={props.closeServiceInstanceDetails} />),
       ]}
