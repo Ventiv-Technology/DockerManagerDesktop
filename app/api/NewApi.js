@@ -67,6 +67,18 @@ const NewApi = {
 
   deployApplication(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration, version: string) {
     return makeRequest(serverInfo, `api/environment/${application.tierName}/${application.environmentId}/app/${application.id}/${version}`, { method: 'POST', body: '{}' });
+  },
+
+  stopApplication(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration) {
+    return makeRequest(serverInfo, `/api/environment/${application.tierName}/${application.environmentId}/app/alpha-mobile/stop`, { method: 'POST', body: '[]' });
+  },
+
+  startApplication(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration) {
+    return makeRequest(serverInfo, `/api/environment/${application.tierName}/${application.environmentId}/app/alpha-mobile/start`, { method: 'POST', body: '[]' });
+  },
+
+  restartApplication(serverInfo: DockerManagerServerConfiguration, application: ApplicationConfiguration) {
+    return makeRequest(serverInfo, `/api/environment/${application.tierName}/${application.environmentId}/app/alpha-mobile/restart`, { method: 'POST', body: '[]' });
   }
 };
 

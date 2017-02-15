@@ -76,9 +76,9 @@ const ApplicationDetails = (props) => {
             />
 
             <RaisedButton label="Deploy" primary style={{ margin: 12 }} onClick={deployApp} />
-            <RaisedButton label="Stop" style={{ margin: 12 }} />
-            <RaisedButton label="Start" style={{ margin: 12 }} />
-            <RaisedButton label="Restart" style={{ margin: 12 }} />
+            <RaisedButton label="Stop" style={{ margin: 12 }} onClick={() => Api.stopApplication(props.server, props.app)} />
+            <RaisedButton label="Start" style={{ margin: 12 }} onClick={() => Api.startApplication(props.server, props.app)} />
+            <RaisedButton label="Restart" style={{ margin: 12 }} onClick={() => Api.restartApplication(props.server, props.app)} />
             <RaisedButton label="History" style={{ margin: 12 }} />
           </div>
 
