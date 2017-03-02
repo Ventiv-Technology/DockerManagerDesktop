@@ -3,7 +3,9 @@
  */
 
 import path from 'path';
+import webpack from 'webpack';
 import validate from 'webpack-validator';
+import StringReplacePlugin from 'string-replace-webpack-plugin';
 import {
   dependencies as externals
 } from './app/package.json';
@@ -17,6 +19,18 @@ export default validate({
     }, {
       test: /\.json$/,
       loader: 'json-loader'
+    }, {
+      test: /\.js$/,
+      loader: StringReplacePlugin.replace({
+        replacements: [
+          {
+            pattern: /#! \/usr\/bin\/env node/ig,
+            replacement: function (match, p1, offset, string) {
+              console.error('Replacing');
+              return '';
+            }
+          }
+        ] })
     }]
   },
 
@@ -34,7 +48,9 @@ export default validate({
     packageMains: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
   },
 
-  plugins: [],
+  plugins: [
+    new StringReplacePlugin()
+  ],
 
   externals: Object.keys(externals || {})
 });

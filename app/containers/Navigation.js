@@ -50,7 +50,7 @@ SelectableList = wrapState(SelectableList);
 const Navigation = (props, context) => (
   <div>
     <Drawer open>
-      <SelectableList defaultValue="Dashboard">
+      <SelectableList defaultValue={1}>
         <Subheader>NAVIGATION</Subheader>
         <ListItem value="Dashboard" primaryText="Dashboard" leftIcon={(<MdDashboard />)} />
         <ListItem value="Containers" primaryText="Containers" leftIcon={(<MdDns />)} />
