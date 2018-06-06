@@ -7,7 +7,8 @@ import selectn from 'selectn';
 
 import Api from '../api/NewApi';
 import ServiceInstanceDetails from '../components/ServiceInstanceDetails';
-import { closeDialog } from '../actions/dialog';
+import { openDialog, closeDialog } from '../actions/dialog';
+import Terminal from '../components/Terminal';
 
 const Dialogs = (props) => (
   <div>
@@ -18,6 +19,7 @@ const Dialogs = (props) => (
         selectn('serviceInstanceDetailsDialog.status', props) === 'Running' ? (<FlatButton label="Stop" onTouchTap={() => Api.stopContainer(props.serviceInstanceDetailsDialog.dmServerInfo, props.serviceInstanceDetailsDialog)} />) : null,
         selectn('serviceInstanceDetailsDialog.status', props) === 'Stopped' ? (<FlatButton label="Start" onTouchTap={() => Api.startContainer(props.serviceInstanceDetailsDialog.dmServerInfo, props.serviceInstanceDetailsDialog)} />) : null,
         (<FlatButton label="Logs" onTouchTap={props.closeServiceInstanceDetails} />),
+        (<FlatButton label="Terminal" onTouchTap={_ => props.closeDialogAndOpenTerminalDialog(props, props.serviceInstanceDetailsDialog)} />),
         (<FlatButton label="Cancel" primary onTouchTap={props.closeServiceInstanceDetails} />),
       ]}
       open={!!props.serviceInstanceDetailsDialog}
@@ -36,12 +38,26 @@ const Dialogs = (props) => (
     >
       <div>{selectn('alertDialog.message', props)}</div>
     </Dialog>
+
+    <Dialog
+      title={selectn('serviceInstanceTerminal.serviceDescription', props)}
+      actions={[
+        (<FlatButton label="Close" primary onTouchTap={props.closeServiceInstanceTerminal} />),
+      ]}
+      modal
+      contentStyle={{ width: '95%', maxWidth: 'none' }}
+      open={!!props.serviceInstanceTerminal}
+      onRequestClose={props.closeServiceInstanceTerminal}
+    >
+      <Terminal serviceInstance={props.serviceInstanceTerminal}/>
+    </Dialog>
   </div>
 );
 
 const mapStateToProps = (state, ownProps) => ({
   serviceInstanceDetailsDialog: state.dialog.serviceInstanceDetailsDialog,
   alertDialog: state.dialog.alert,
+  serviceInstanceTerminal: state.dialog.serviceInstanceTerminal,
 });
 
 function mapDispatchToProps(dispatch) {
@@ -49,6 +65,11 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     closeServiceInstanceDetails: () => dispatch(closeDialog('serviceInstanceDetailsDialog')),
     closeAlert: () => dispatch(closeDialog('alert')),
+    closeDialogAndOpenTerminalDialog: (props, serviceInstanceDetailsDialog) => {
+      dispatch(closeDialog('serviceInstanceDetailsDialog'));
+      dispatch(openDialog('serviceInstanceTerminal', serviceInstanceDetailsDialog));
+    },
+    closeServiceInstanceTerminal: () => dispatch(closeDialog('serviceInstanceTerminal')),
   };
 }
 
